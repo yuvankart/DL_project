@@ -1,0 +1,72 @@
+model:
+  base_learning_rate: 4.5e-06
+  target: core.models.encoder.MaskPartialEncoderModel
+  params:
+    embed_dim: 256
+    n_embed: 1024
+    image_key: "image"
+    first_stage_config:
+      target: core.models.vqgan.VQModel
+      params:
+        ckpt_path: ckpts/places256_vqgan1024_BASE.ckpt
+        embed_dim: 256
+        n_embed: 1024
+        ddconfig:
+          padding_free: false
+          double_z: false
+          z_channels: 256
+          resolution: 128
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 1
+          - 2
+          - 2
+          - 4
+          num_res_blocks: 2
+          attn_resolutions:
+          - 16
+          dropout: 0.0
+        lossconfig:
+          target: core.modules.losses.DummyLoss
+    ddconfig:
+      padding_free: false
+      double_z: false
+      z_channels: 256
+      resolution: 128
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult:
+      - 1
+      - 1
+      - 2
+      - 2
+      - 4
+      num_res_blocks: 2
+      attn_resolutions:
+      - 16
+      dropout: 0.0
+data:
+  target: train.DataModuleFromConfig
+  params:
+    batch_size: 1
+    train:
+      target: core.data.places365.Places
+      params:
+        dataroot: /home/yuvankart/DL_PRO/project/data1
+        crop_size: 128
+        rescale: True
+        rescale_size: 128
+        split: 'train'
+    test:
+      target: core.data.places365.Places
+      params:
+        dataroot: /home/yuvankart/DL_PRO/project/test_data
+        crop_size: 128
+        rescale: True
+        rescale_size: 128
+        split: 'test'
+

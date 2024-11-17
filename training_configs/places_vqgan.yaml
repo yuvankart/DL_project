@@ -1,0 +1,58 @@
+model:
+  base_learning_rate: 4.5e-06
+  target: core.models.vqgan.VQModel
+  params:
+    embed_dim: 256
+    n_embed: 256
+    image_key: "image"
+    ddconfig:
+      padding_free: false
+      double_z: false
+      z_channels: 256
+      resolution: 128
+      in_channels: 3
+      out_ch: 3
+      ch: 64
+      ch_mult:
+      - 1
+      - 1
+      - 2
+      - 2
+      - 4
+      num_res_blocks: 1
+      attn_resolutions:
+      - 16
+      dropout: 0.0
+    lossconfig:
+      target: core.modules.losses.vqperceptual.VQLPIPSWithDiscriminator
+      params:
+        disc_conditional: False
+        disc_in_channels: 3
+        disc_start: 50000
+        disc_weight: 0.8
+        codebook_weight: 1.0
+data:
+  target: train.DataModuleFromConfig
+  params:
+    batch_size: 1
+    train:
+      target: core.data.places365.Places
+      params:
+        dataroot: /home/yuvankart/DL_PRO/project/data1
+        crop_size: 128
+        rescale: True
+        rescale_size: 128
+        split: 'train'
+    test:
+      target: core.data.places365.Places
+      params:
+        dataroot: /home/yuvankart/DL_PRO/project/test_data
+        crop_size: 128
+        rescale: True
+        rescale_size: 128
+        split: 'test'
+
+
+trainer:
+  max_epochs: 10  # Set this to the desired number of epochs
+  gpus: 1  # Set to the number of GPUs if available; otherwise, remove if running on CPU
